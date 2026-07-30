@@ -44,7 +44,7 @@ export function App() {
   return (
     <div className="min-h-screen bg-[#0C0B0A] text-[#F2F0EC] selection:bg-[#C9A227] selection:text-[#0C0B0A]">
       {/* Navigation Bar */}
-      <Navbar onNavigateAdmin={navigateToAdmin} />
+      <Navbar />
 
       {/* Main Content Sections */}
       <main>
@@ -55,7 +55,7 @@ export function App() {
       </main>
 
       {/* Contact Footer */}
-      <Footer />
+      <Footer onNavigateAdmin={navigateToAdmin} />
 
       {/* Video Embed Modal */}
       <VideoModal

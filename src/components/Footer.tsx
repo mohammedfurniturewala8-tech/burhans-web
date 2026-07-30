@@ -1,7 +1,11 @@
 import React from 'react';
-import { Mail, MessageCircle, ArrowUpRight } from 'lucide-react';
+import { Mail, MessageCircle, ArrowUpRight, Lock } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onNavigateAdmin?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onNavigateAdmin }) => {
   return (
     <footer id="contact" className="bg-[#141210] border-t border-[#2A2724] pt-20 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -75,9 +79,20 @@ export const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="pt-6 border-t border-[#2A2724] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#9C9890]">
           <span>© {new Date().getFullYear()} Burhanuddin Ziya. All rights reserved.</span>
-          <span className="font-mono text-[11px]">Video Editing Portfolio</span>
+
+          {/* Admin Panel Access at the end of the website */}
+          {onNavigateAdmin && (
+            <button
+              onClick={onNavigateAdmin}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#1C1917] border border-[#2A2724] font-mono text-[11px] text-[#9C9890] hover:text-[#C9A227] hover:border-[#C9A227] transition-colors"
+            >
+              <Lock className="w-3 h-3 text-[#C9A227]" />
+              <span>Admin Access</span>
+            </button>
+          )}
         </div>
       </div>
     </footer>
   );
 };
+

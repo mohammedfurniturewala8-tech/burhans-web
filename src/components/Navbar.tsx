@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Film, Menu, X, Settings } from 'lucide-react';
+import { Film, Menu, X } from 'lucide-react';
 
-interface NavbarProps {
-  onNavigateAdmin?: () => void;
-}
-
-export const Navbar: React.FC<NavbarProps> = ({ onNavigateAdmin }) => {
+export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -71,17 +67,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigateAdmin }) => {
             >
               Contact
             </a>
-
-            {onNavigateAdmin && (
-              <button
-                onClick={onNavigateAdmin}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#1C1917] border border-[#2A2724] text-xs font-mono text-[#9C9890] hover:text-[#F2F0EC] hover:border-[#C9A227] transition-colors"
-                title="Admin Video Upload"
-              >
-                <Settings className="w-3.5 h-3.5 text-[#C9A227]" />
-                <span>Admin</span>
-              </button>
-            )}
           </nav>
 
           {/* Mobile Menu Toggle Button */}
@@ -122,23 +107,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigateAdmin }) => {
           <a
             href="#contact"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-sm font-medium text-[#F2F0EC] hover:text-[#C9A227] py-2 border-b border-[#2A2724]"
+            className="block text-sm font-medium text-[#F2F0EC] hover:text-[#C9A227] py-2"
           >
             Contact
           </a>
-
-          {onNavigateAdmin && (
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onNavigateAdmin();
-              }}
-              className="w-full text-left text-sm font-mono text-[#C9A227] py-2 flex items-center gap-2"
-            >
-              <Settings className="w-4 h-4" />
-              <span>Admin Panel</span>
-            </button>
-          )}
         </div>
       )}
     </header>
