@@ -22,13 +22,13 @@ export const isMockupMode = (): boolean => {
 export function formatDriveEmbedUrl(urlOrId: string): string {
   if (!urlOrId) return '';
   
-  // If it's already an embed preview link
-  if (urlOrId.includes('/preview')) return urlOrId;
+  const trimmed = urlOrId.trim();
+  if (trimmed.includes('/preview')) return trimmed;
 
-  // Regular expression to extract file ID from common Google Drive URL formats
-  const regExp = /\/file\/d\/([a-zA-Z0-9_-]+)\b|id=([a-zA-Z0-9_-]+)/;
-  const matches = urlOrId.match(regExp);
-  const fileId = matches ? (matches[1] || matches[2]) : urlOrId;
+  // Regular expression to extract file ID containing hyphens and underscores
+  const regExp = /\/file\/d\/([a-zA-Z0-9_\-]+)|id=([a-zA-Z0-9_\-]+)/;
+  const matches = trimmed.match(regExp);
+  const fileId = matches ? (matches[1] || matches[2]) : trimmed;
 
   return `https://drive.google.com/file/d/${fileId}/preview`;
 }
