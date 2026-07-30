@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { X, ExternalLink, Clock, Tag, UserCheck } from 'lucide-react';
+import { formatDriveEmbedUrl } from '../lib/supabase';
 import type { Project } from '../data/projects';
 
 interface VideoModalProps {
@@ -24,9 +25,8 @@ export const VideoModal: React.FC<VideoModalProps> = ({ project, onClose }) => {
 
   if (!project) return null;
 
-  const driveEmbedUrl = project.driveFileId.startsWith('http')
-    ? project.driveFileId
-    : `https://drive.google.com/file/d/${project.driveFileId}/preview`;
+  const driveEmbedUrl = formatDriveEmbedUrl(project.driveFileId);
+  const directDriveUrl = driveEmbedUrl.replace('/preview', '/view');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#0C0B0A]/85 backdrop-none animate-in fade-in duration-150">
@@ -76,7 +76,7 @@ export const VideoModal: React.FC<VideoModalProps> = ({ project, onClose }) => {
             </div>
 
             <a
-              href={`https://drive.google.com/file/d/${project.driveFileId}/view`}
+              href={directDriveUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded bg-[#141210] border border-[#2A2724] text-xs font-medium text-[#C9A227] hover:border-[#C9A227] transition-colors whitespace-nowrap"
