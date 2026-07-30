@@ -43,6 +43,21 @@ export async function uploadHeroVideoFile(
   file: File,
   onProgress?: (percent: number) => void
 ): Promise<{ success: boolean; url?: string; error?: string }> {
+  // Check if Supabase is actually configured
+  const isMock = supabaseUrl.includes('xyzcompany.supabase.co') || supabaseAnonKey === 'public-anon-key-placeholder';
+  
+  if (isMock) {
+    // If running in local demo mode without credentials
+    const objectUrl = URL.createObjectURL(file);
+    localStorage.setItem(LOCAL_HERO_STORAGE_KEY, objectUrl);
+    if (onProgress) onProgress(100);
+    return { 
+      success: true, 
+      url: objectUrl,
+      error: 'Running in Local Demo Mode. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY on Vercel to save to cloud database.'
+    };
+  }
+
   try {
     const fileExt = file.name.split('.').pop();
     const fileName = `hero_${Date.now()}.${fileExt}`;
@@ -58,17 +73,14 @@ export async function uploadHeroVideoFile(
         upsert: true
       });
 
+    if (uploadError) {
+      return { success: false, error: `Supabase Storage Upload Failed: ${uploadError.message}. Make sure bucket "${BUCKET_NAME}" exists and is set to Public.` };
+    }
+
     if (onProgress) onProgress(70);
 
-    let publicUrl = '';
-
-    if (uploadError) {
-      // If Supabase Storage is not connected yet in local dev environment, create Blob URL / Object URL
-      publicUrl = URL.createObjectURL(file);
-    } else {
-      const { data: urlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(uploadData.path);
-      publicUrl = urlData.publicUrl;
-    }
+    const { data: urlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(uploadData.path);
+    const publicUrl = urlData.publicUrl;
 
     // Save active URL to Supabase DB table "site_config"
     const { error: dbError } = await supabase
@@ -76,20 +88,15 @@ export async function uploadHeroVideoFile(
       .upsert({ id: 1, active_hero_url: publicUrl });
 
     if (dbError) {
-      console.warn('Supabase site_config update warning:', dbError.message);
+      return { success: false, error: `Supabase Database Update Failed: ${dbError.message}. Ensure "site_config" table exists and Row Level Security (RLS) policies allow upserts.` };
     }
 
     // Always mirror to localStorage for instantaneous local testing
     localStorage.setItem(LOCAL_HERO_STORAGE_KEY, publicUrl);
 
     if (onProgress) onProgress(100);
-
     return { success: true, url: publicUrl };
   } catch (err: any) {
-    // Graceful fallback for local development: Object URL
-    const objectUrl = URL.createObjectURL(file);
-    localStorage.setItem(LOCAL_HERO_STORAGE_KEY, objectUrl);
-    if (onProgress) onProgress(100);
-    return { success: true, url: objectUrl };
+    return { success: false, error: err.message || 'An unexpected error occurred during upload.' };
   }
 }
