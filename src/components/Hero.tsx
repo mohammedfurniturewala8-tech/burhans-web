@@ -22,6 +22,7 @@ export const Hero: React.FC = () => {
           muted
           loop
           playsInline
+          preload="auto"
           poster="/images/hero_poster.jpg"
           className="w-full h-full object-cover object-center scale-100"
         />

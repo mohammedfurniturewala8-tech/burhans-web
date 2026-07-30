@@ -50,11 +50,11 @@ export async function uploadHeroVideoFile(
 
     if (onProgress) onProgress(20);
 
-    // Upload to Supabase storage bucket
+    // Upload to Supabase storage bucket with strong public CDN caching
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from(BUCKET_NAME)
       .upload(filePath, file, {
-        cacheControl: '3600',
+        cacheControl: '31536000, public',
         upsert: true
       });
 
