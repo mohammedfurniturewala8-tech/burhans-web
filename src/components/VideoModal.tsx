@@ -24,7 +24,9 @@ export const VideoModal: React.FC<VideoModalProps> = ({ project, onClose }) => {
 
   if (!project) return null;
 
-  const driveEmbedUrl = `https://drive.google.com/file/d/${project.driveFileId}/preview`;
+  const driveEmbedUrl = project.driveFileId.startsWith('http')
+    ? project.driveFileId
+    : `https://drive.google.com/file/d/${project.driveFileId}/preview`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#0C0B0A]/85 backdrop-none animate-in fade-in duration-150">

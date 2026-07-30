@@ -1,17 +1,33 @@
-import React, { useState } from 'react';
-import { Play, Clock } from 'lucide-react';
-import { PROJECTS, CATEGORIES, type CategoryFilter, type Project } from '../data/projects';
+import React, { useState, useEffect } from 'react';
+import { Play, RefreshCw } from 'lucide-react';
+import { fetchPortfolioVideos, type DbPortfolioVideo } from '../lib/supabase';
+
+const CATEGORIES = ['All', 'Gaming', 'Corporate/Brand', 'Music/AMV', 'Cinematic', 'Fast Cuts'] as const;
+type CategoryFilter = typeof CATEGORIES[number];
 
 interface WorkSectionProps {
-  onSelectProject: (project: Project) => void;
+  onSelectProject: (project: any) => void;
 }
 
 export const WorkSection: React.FC<WorkSectionProps> = ({ onSelectProject }) => {
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('All');
+  const [videos, setVideos] = useState<DbPortfolioVideo[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredProjects = activeCategory === 'All'
-    ? PROJECTS
-    : PROJECTS.filter((p) => p.category === activeCategory);
+  useEffect(() => {
+    loadPortfolio();
+  }, []);
+
+  const loadPortfolio = async () => {
+    setLoading(true);
+    const data = await fetchPortfolioVideos();
+    setVideos(data);
+    setLoading(false);
+  };
+
+  const filteredVideos = activeCategory === 'All'
+    ? videos
+    : videos.filter((v) => v.category === activeCategory);
 
   return (
     <section id="work" className="py-24 bg-[#0C0B0A] relative border-t border-[#2A2724]">
@@ -52,70 +68,86 @@ export const WorkSection: React.FC<WorkSectionProps> = ({ onSelectProject }) => 
           })}
         </div>
 
-        {/* Projects Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProjects.map((project) => (
-            <div
-              key={project.id}
-              onClick={() => onSelectProject(project)}
-              className="group bg-[#1C1917] border border-[#2A2724] rounded-lg overflow-hidden cursor-pointer hover:border-[#C9A227] transition-colors flex flex-col"
-            >
-              {/* Thumbnail Container */}
-              <div className="relative aspect-video bg-[#141210] overflow-hidden">
-                <img
-                  src={project.thumbnail}
-                  alt={project.title}
-                  className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
-                />
+        {/* Dynamic State Rendering */}
+        {loading ? (
+          <div className="text-center py-20 text-[#9C9890] flex items-center justify-center gap-2">
+            <RefreshCw className="w-5 h-5 animate-spin text-[#C9A227]" />
+            <span>Loading showcase grid...</span>
+          </div>
+        ) : videos.length === 0 ? (
+          /* Empty State - Portfolio coming soon */
+          <div className="max-w-md mx-auto text-center py-20 border border-dashed border-[#2A2724] rounded-lg text-[#9C9890] space-y-2">
+            <h3 className="font-display font-semibold text-base text-[#F2F0EC]">
+              Portfolio Coming Soon
+            </h3>
+            <p className="text-xs">
+              Check back shortly. The editing grid is currently being populated.
+            </p>
+          </div>
+        ) : (
+          /* Projects Grid */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredVideos.map((video, idx) => (
+              <div
+                key={video.id || idx}
+                onClick={() => onSelectProject({
+                  id: video.id,
+                  title: video.title,
+                  category: video.category,
+                  description: video.description,
+                  thumbnail: video.thumbnail_url,
+                  driveFileId: video.drive_url, // Drive embed URL passed directly
+                  duration: '02:00', // Mock duration or dynamic duration fallback
+                  tags: [video.category]
+                })}
+                className="group bg-[#1C1917] border border-[#2A2724] rounded-lg overflow-hidden cursor-pointer hover:border-[#C9A227] transition-colors flex flex-col"
+              >
+                {/* Thumbnail Container */}
+                <div className="relative aspect-video bg-[#141210] overflow-hidden">
+                  <img
+                    src={video.thumbnail_url}
+                    alt={video.title}
+                    className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+                  />
 
-                {/* Simple Dark Overlay */}
-                <div className="absolute inset-0 bg-[#0C0B0A]/40 group-hover:bg-[#0C0B0A]/20 transition-colors" />
+                  {/* Simple Dark Overlay */}
+                  <div className="absolute inset-0 bg-[#0C0B0A]/40 group-hover:bg-[#0C0B0A]/20 transition-colors" />
 
-                {/* Play Button Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="w-12 h-12 rounded-full bg-[#C9A227] text-[#0C0B0A] flex items-center justify-center">
-                    <Play className="w-5 h-5 fill-current ml-0.5" />
+                  {/* Play Button Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-12 h-12 rounded-full bg-[#C9A227] text-[#0C0B0A] flex items-center justify-center">
+                      <Play className="w-5 h-5 fill-current ml-0.5" />
+                    </div>
+                  </div>
+
+                  {/* Category Badge */}
+                  <div className="absolute top-3 left-3 px-2 py-1 rounded bg-[#0C0B0A]/90 text-[11px] font-mono text-[#9C9890] border border-[#2A2724]">
+                    {video.category}
                   </div>
                 </div>
 
-                {/* Duration Badge */}
-                <div className="absolute bottom-3 right-3 px-2 py-1 rounded bg-[#0C0B0A]/90 text-[11px] font-mono text-[#F2F0EC] border border-[#2A2724] flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-[#9C9890]" />
-                  <span>{project.duration}</span>
-                </div>
+                {/* Card Body */}
+                <div className="p-5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-display font-semibold text-base text-[#F2F0EC] group-hover:text-[#C9A227] transition-colors mb-2 line-clamp-1">
+                      {video.title}
+                    </h3>
+                    <p className="text-xs text-[#9C9890] leading-relaxed line-clamp-2 mb-4">
+                      {video.description}
+                    </p>
+                  </div>
 
-                {/* Category Badge */}
-                <div className="absolute top-3 left-3 px-2 py-1 rounded bg-[#0C0B0A]/90 text-[11px] font-mono text-[#9C9890] border border-[#2A2724]">
-                  {project.category}
-                </div>
-              </div>
-
-              {/* Card Body */}
-              <div className="p-5 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-display font-semibold text-base text-[#F2F0EC] group-hover:text-[#C9A227] transition-colors mb-2 line-clamp-1">
-                    {project.title}
-                  </h3>
-                  <p className="text-xs text-[#9C9890] leading-relaxed line-clamp-2 mb-4">
-                    {project.description}
-                  </p>
-                </div>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1.5 pt-3 border-t border-[#2A2724]">
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-0.5 rounded bg-[#141210] text-[10px] font-mono text-[#9C9890] border border-[#2A2724]"
-                    >
-                      {tag}
+                  {/* Tag */}
+                  <div className="flex flex-wrap gap-1.5 pt-3 border-t border-[#2A2724]">
+                    <span className="px-2 py-0.5 rounded bg-[#141210] text-[10px] font-mono text-[#9C9890] border border-[#2A2724]">
+                      {video.category}
                     </span>
-                  ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
