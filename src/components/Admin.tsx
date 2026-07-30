@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, CheckCircle, AlertCircle, ArrowLeft, RefreshCw, Film, Plus, Edit2, Trash2, ArrowUp, ArrowDown, X, Phone } from 'lucide-react';
+import { Lock, Upload, CheckCircle, AlertCircle, ArrowLeft, RefreshCw, Film, Plus, Edit2, Trash2, ArrowUp, ArrowDown, X } from 'lucide-react';
 import { 
   fetchActiveHeroVideoUrl, 
   uploadHeroVideoFile, 
@@ -14,9 +14,9 @@ import {
   type DbPortfolioVideo
 } from '../lib/supabase';
 
-// NOTE: Hardcoded phone number for client-side authorization gate demonstration.
-// THIS IS NOT SECURE SERVER-SIDE AUTHENTICATION. In production, use SMS OTP or Supabase Auth.
-const ADMIN_PHONE_NUMBER = '8788352487';
+// NOTE: Hardcoded password for client-side password gate demonstration.
+// THIS IS NOT SECURE SERVER-SIDE AUTHENTICATION. In production, use Supabase Auth or Vercel Auth.
+const ADMIN_PASSWORD = 'Burhan#the@great';
 
 const PORTFOLIO_CATEGORIES = ['Gaming', 'Corporate/Brand', 'Music/AMV', 'Cinematic', 'Fast Cuts'];
 
@@ -25,9 +25,9 @@ interface AdminProps {
 }
 
 export const Admin: React.FC<AdminProps> = ({ onNavigateHome }) => {
-  const [phoneInput, setPhoneInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [phoneError, setPhoneError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
   // Hero Video States
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(DEFAULT_HERO_VIDEO_URL);
@@ -64,14 +64,13 @@ export const Admin: React.FC<AdminProps> = ({ onNavigateHome }) => {
     setLoadingVideos(false);
   };
 
-  const handlePhoneSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanDigits = phoneInput.replace(/\D/g, '');
-    if (cleanDigits === ADMIN_PHONE_NUMBER || cleanDigits.endsWith(ADMIN_PHONE_NUMBER)) {
+    if (passwordInput.trim() === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
-      setPhoneError(false);
+      setPasswordError(false);
     } else {
-      setPhoneError(true);
+      setPasswordError(true);
     }
   };
 
@@ -240,33 +239,33 @@ export const Admin: React.FC<AdminProps> = ({ onNavigateHome }) => {
         <div className="w-full max-w-md bg-[#1C1917] border border-[#2A2724] rounded-xl p-8 space-y-6">
           <div className="text-center space-y-2">
             <div className="w-12 h-12 rounded-lg bg-[#141210] border border-[#2A2724] flex items-center justify-center mx-auto text-[#C9A227]">
-              <Phone className="w-6 h-6" />
+              <Lock className="w-6 h-6" />
             </div>
             <h1 className="font-display text-2xl font-bold text-[#F2F0EC]">
               Admin Verification
             </h1>
             <p className="text-xs text-[#9C9890]">
-              Enter authorized admin phone number to access control panel.
+              Enter access password to unlock admin control panel.
             </p>
           </div>
 
-          <form onSubmit={handlePhoneSubmit} className="space-y-4">
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-mono text-[#9C9890] mb-2 uppercase">
-                Admin Phone Number
+                Admin Password
               </label>
               <input
-                type="tel"
-                value={phoneInput}
-                onChange={(e) => setPhoneInput(e.target.value)}
-                placeholder="Enter admin phone number"
-                className="w-full px-4 py-3 rounded-lg bg-[#141210] border border-[#2A2724] text-[#F2F0EC] text-sm focus:outline-none focus:border-[#C9A227] transition-colors font-mono"
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                placeholder="Enter admin password"
+                className="w-full px-4 py-3 rounded-lg bg-[#141210] border border-[#2A2724] text-[#F2F0EC] text-sm focus:outline-none focus:border-[#C9A227] transition-colors"
                 autoFocus
               />
-              {phoneError && (
+              {passwordError && (
                 <p className="text-xs text-red-400 mt-2 flex items-center gap-1">
                   <AlertCircle className="w-3.5 h-3.5" />
-                  Unauthorized phone number. Access denied.
+                  Incorrect password. Access denied.
                 </p>
               )}
             </div>
