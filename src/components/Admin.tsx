@@ -259,7 +259,7 @@ export const Admin: React.FC<AdminProps> = ({ onNavigateHome }) => {
                 type="tel"
                 value={phoneInput}
                 onChange={(e) => setPhoneInput(e.target.value)}
-                placeholder="Enter phone number (e.g. 8788352487)"
+                placeholder="Enter admin phone number"
                 className="w-full px-4 py-3 rounded-lg bg-[#141210] border border-[#2A2724] text-[#F2F0EC] text-sm focus:outline-none focus:border-[#C9A227] transition-colors font-mono"
                 autoFocus
               />
