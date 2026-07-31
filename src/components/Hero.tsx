@@ -1,34 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { ChevronDown } from 'lucide-react';
-import { fetchActiveHeroVideoUrl, DEFAULT_HERO_VIDEO_URL } from '../lib/supabase';
+import Ferrofluid from './Ferrofluid';
 
 export const Hero: React.FC = () => {
-  const [videoUrl, setVideoUrl] = useState<string>(DEFAULT_HERO_VIDEO_URL);
-
-  useEffect(() => {
-    fetchActiveHeroVideoUrl().then((url) => {
-      if (url) setVideoUrl(url);
-    });
-  }, []);
-
   return (
     <section className="relative w-full h-screen min-h-[600px] flex items-center justify-center overflow-hidden bg-[#0C0B0A]">
-      {/* Full-bleed Showreel Video Element */}
+      {/* Full-bleed Ferrofluid WebGL Background */}
       <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
-        <video
-          key={videoUrl}
-          src={videoUrl}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          poster="/images/hero_poster.jpg"
-          className="w-full h-full object-cover object-center scale-100"
+        <Ferrofluid
+          colors={["#C9A227", "#F2F0EC", "#C9A227"]}
+          speed={0.5}
+          scale={1.2}
+          turbulence={1}
+          fluidity={0.1}
+          rimWidth={0.25}
+          sharpness={3}
+          shimmer={1.2}
+          glow={2.2}
+          flowDirection="down"
+          opacity={0.85}
+          mouseInteraction={true}
+          mouseStrength={1.2}
+          mouseRadius={0.35}
         />
 
-        {/* Dark legibility overlay (rgba(12,11,10,0.55)) */}
-        <div className="absolute inset-0 bg-[#0C0B0A]/55" />
+        {/* Dark legibility overlay */}
+        <div className="absolute inset-0 bg-[#0C0B0A]/40 pointer-events-none" />
       </div>
 
       {/* Hero Content Overlay */}
